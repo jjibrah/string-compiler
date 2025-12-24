@@ -1,0 +1,33 @@
+<program> ::= "program" <stmt_list> "end"
+
+<stmt_list> ::= <stmt_list> <statement>
+              | <statement>
+
+<statement> ::= <declaration>
+              | <assignment>
+              | <print_stmt>
+
+<declaration> ::= <type> IDENTIFIER ";"
+
+<type> ::= "string"
+         | "int"
+         | "bool"
+
+<assignment> ::= IDENTIFIER "=" <expression> ";"
+
+<print_stmt> ::= "print" "(" <expression> ")" ";"
+
+<expression> ::= STRING_LITERAL
+               | NUMBER
+               | BOOLEAN
+               | IDENTIFIER
+               | <function_call>
+
+<function_call> ::= "concat" "(" <expression> "," <expression> ")"
+                  | "substr" "(" <expression> "," <expression> "," <expression> ")"
+                  | "length" "(" <expression> ")"
+                  | "reverse" "(" <expression> ")"
+                  | "palindrome" "(" <expression> ")"
+                  | "compare" "(" <expression> "," <expression> ")"
+
+BOOLEAN ::= "true" | "false"

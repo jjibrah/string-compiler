@@ -1,0 +1,35 @@
+1. The Shared Data Structure
+	for ast.h:
+
+		Path: src/parser/ast.h
+
+2. Symbol Table Header
+	for symbol_table.h: 
+
+		Path: src/semantic/symbol_table.h
+
+3. Symbol Table Implementation
+	for symbol_table.c:
+
+		Path: src/semantic/symbol_table.c
+
+4. Semantic Analysis Header
+	for semanti.h:
+	
+		Path: src/semantic/semantic.h
+
+5. Semantic Analysis Implementation
+	for semantic.c:
+	
+		Path: src/semantic/semantic.c
+---------------------------------------------------------
+
+Compile detail:
+
+		Bash: 
+			
+			mkdir -p src/parser src/semantic
+
+			gcc lex.yy.c parser.tab.c src/semantic/symbol_table.c src/semantic/semantic.c -o compiler
+
+
