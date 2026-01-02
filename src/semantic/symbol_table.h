@@ -1,7 +1,7 @@
 #ifndef SYMBOL_TABLE_H
 #define SYMBOL_TABLE_H
 
-#include "../parser/ast.h"
+#include "ast.h"
 
 /* Structure to hold symbol information [cite: 246] */
 typedef struct Symbol {

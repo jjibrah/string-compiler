@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "ast.h"
+#include <string.h>
+#include "../semantic/ast.h"
 
 /* ===============================
    GLOBAL OUTPUT FILE
@@ -15,10 +16,46 @@ void genExpression(ASTNode *node);
 void generateCode(ASTNode *root, const char *filename);
 
 /* =====================================================
+   Helper: map function name to runtime function
+   ===================================================== */
+static const char* mapRuntimeFn(const char *fn) {
+    if (!fn) return fn;
+
+    if (strcmp(fn, "concat") == 0)      return "concat_string";
+    if (strcmp(fn, "reverse") == 0)     return "reverse_string";
+    if (strcmp(fn, "length") == 0)      return "string_length";
+    if (strcmp(fn, "substr") == 0)      return "substring";
+    if (strcmp(fn, "palindrome") == 0)  return "is_palindrome";
+    if (strcmp(fn, "compare") == 0)     return "compare_string"; /* if implemented */
+
+    /* default: emit as-is */
+    return fn;
+}
+
+/* =====================================================
+   Helper: decide print format based on expression type
+   ===================================================== */
+static const char* printFormatForExpr(ASTNode *expr) {
+    if (!expr) return "%s";
+
+    /* integers */
+    if (expr->type == AST_INT_LITERAL) return "%d";
+
+    /* function calls: some return int */
+    if (expr->type == AST_FUNC_CALL && expr->funcName) {
+        if (strcmp(expr->funcName, "length") == 0) return "%d";
+        if (strcmp(expr->funcName, "palindrome") == 0) return "%d"; /* 0/1 */
+        if (strcmp(expr->funcName, "compare") == 0) return "%d";    /* <0,0,>0 */
+    }
+
+    /* default strings / identifiers assumed string */
+    return "%s";
+}
+
+/* =====================================================
    CODE GENERATION ENTRY POINT
    ===================================================== */
 void generateCode(ASTNode *root, const char *filename) {
-
     out = fopen(filename, "w");
     if (!out) {
         perror("Cannot open output file");
@@ -45,7 +82,6 @@ void generateCode(ASTNode *root, const char *filename) {
    STATEMENT GENERATION
    ===================================================== */
 void genStatement(ASTNode *node) {
-
     if (!node) return;
 
     switch (node->type) {
@@ -63,11 +99,14 @@ void genStatement(ASTNode *node) {
             fprintf(out, ";\n");
             break;
 
-        case AST_PRINT:
-            fprintf(out, "    printf(\"%%s\\n\", ");
-            genExpression(node->children[0]);
+        case AST_PRINT: {
+            ASTNode *expr = node->children[0];
+            const char *fmt = printFormatForExpr(expr);
+            fprintf(out, "    printf(\"%s\\n\", ", fmt);
+            genExpression(expr);
             fprintf(out, ");\n");
             break;
+        }
 
         default:
             fprintf(stderr, "CodeGen Error: Unknown statement\n");
@@ -78,7 +117,6 @@ void genStatement(ASTNode *node) {
    EXPRESSION GENERATION
    ===================================================== */
 void genExpression(ASTNode *node) {
-
     if (!node) return;
 
     switch (node->type) {
@@ -95,58 +133,21 @@ void genExpression(ASTNode *node) {
             fprintf(out, "%s", node->name);
             break;
 
-        case AST_FUNC_CALL:
-            fprintf(out, "%s(", node->funcName);
+        case AST_FUNC_CALL: {
+            const char *runtimeFn = mapRuntimeFn(node->funcName);
+            fprintf(out, "%s(", runtimeFn);
+
             for (int i = 0; i < node->childCount; i++) {
                 genExpression(node->children[i]);
-                if (i < node->childCount - 1)
-                    fprintf(out, ", ");
+                if (i < node->childCount - 1) fprintf(out, ", ");
             }
+
             fprintf(out, ")");
             break;
+        }
 
         default:
             fprintf(stderr, "CodeGen Error: Unknown expression\n");
     }
 }
 
-/* =====================================================
-   TEST DRIVER (MAIN)
-   ===================================================== */
-int main() {
-
-    /* Create AST manually for:
-       string s;
-       s = reverse_string("madam");
-       print(s);
-    */
-
-    ASTNode program;
-    program.childCount = 3;
-    program.children = malloc(sizeof(ASTNode*) * 3);
-
-    /* 1️⃣ string s; */
-    ASTNode decl = { AST_VAR_DECL, TYPE_STRING, "s", NULL, 0, NULL, NULL, 0 };
-
-    /* 2️⃣ s = reverse_string("madam"); */
-    ASTNode literal = { AST_STRING_LITERAL, TYPE_STRING, NULL, "madam", 0, NULL, NULL, 0 };
-    ASTNode *args[] = { &literal };
-    ASTNode call = { AST_FUNC_CALL, TYPE_STRING, NULL, NULL, 0, "reverse_string", args, 1 };
-    ASTNode assign = { AST_ASSIGN, TYPE_STRING, "s", NULL, 0, NULL, &call, 1 };
-
-    /* 3️⃣ print(s); */
-    ASTNode id = { AST_IDENTIFIER, TYPE_STRING, "s", NULL, 0, NULL, NULL, 0 };
-    ASTNode print = { AST_PRINT, TYPE_STRING, NULL, NULL, 0, NULL, &id, 1 };
-
-    program.children[0] = &decl;
-    program.children[1] = &assign;
-    program.children[2] = &print;
-
-    /* Generate C code */
-    generateCode(&program, "output/generated.c");
-
-    /* Free memory */
-    free(program.children);
-
-    return 0;
-}

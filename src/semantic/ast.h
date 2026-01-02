@@ -1,43 +1,58 @@
 #ifndef AST_H
 #define AST_H
 
-/* Supported Data Types [cite: 165-168] */
+/* Data types */
 typedef enum {
-    TYPE_VOID,
-    TYPE_INT,
     TYPE_STRING,
-    TYPE_BOOL
+    TYPE_INT,
+    TYPE_BOOL,
+    TYPE_UNKNOWN
 } DataType;
 
-/* Node Types based on Grammar [cite: 38-41] */
+/* AST kinds used by parser + codegen */
 typedef enum {
-    NODE_PROGRAM,
-    NODE_VAR_DECL,
-    NODE_ASSIGN,
-    NODE_PRINT,
-    NODE_LITERAL_STRING,
-    NODE_LITERAL_INT,
-    NODE_LITERAL_BOOL,
-    NODE_VAR_REF,
-    NODE_FUNC_CONCAT,
-    NODE_FUNC_SUBSTR,
-    NODE_FUNC_LENGTH,
-    NODE_FUNC_REVERSE,
-    NODE_FUNC_PALINDROME,
-    NODE_FUNC_COMPARE
-} NodeType;
+    AST_PROGRAM,
+    AST_STMT_LIST,
 
-/* Abstract Syntax Tree Node */
+    AST_VAR_DECL,
+    AST_ASSIGN,
+    AST_PRINT,
+
+    AST_STRING_LITERAL,
+    AST_INT_LITERAL,
+    AST_BOOL_LITERAL,
+    AST_IDENTIFIER,
+
+    AST_FUNC_CALL
+} ASTKind;
+
 typedef struct ASTNode {
-    NodeType type;
-    DataType dataType;      // For type checking result
-    char* stringValue;      // For identifiers or string literals
-    int intValue;           // For int literals
-    int lineNo;             // For error reporting
+    ASTKind type;
+    DataType dataType;
 
-    struct ASTNode* left;   // Children (arguments, expressions)
-    struct ASTNode* right;
-    struct ASTNode* next;   // For lists of statements
+    char *name;        /* identifier name */
+    char *funcName;    /* function name for calls */
+    char *value;       /* string literal content */
+
+    int intValue;
+    int boolValue;
+
+    struct ASTNode **children;
+    int childCount;
 } ASTNode;
+
+ASTNode *createNode(ASTKind kind);
+void addChild(ASTNode *parent, ASTNode *child);
+
+ASTNode *makeDecl(DataType t, const char *id);
+ASTNode *makeAssign(const char *id, ASTNode *expr);
+ASTNode *makePrint(ASTNode *expr);
+
+ASTNode *makeStringLit(const char *s);
+ASTNode *makeIntLit(int v);
+ASTNode *makeBoolLit(int v);
+ASTNode *makeIdentifier(const char *id);
+
+ASTNode *makeFuncCall(const char *fname, ASTNode **args, int argCount);
 
 #endif

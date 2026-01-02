@@ -44,3 +44,10 @@ char* substring(const char* s, int start, int length) {
     sub[length] = '\0';
     return sub;
 }
+
+int compare_string(char *s1, char *s2) {
+    if (!s1 && !s2) return 0;
+    if (!s1) return -1;
+    if (!s2) return 1;
+    return strcmp(s1, s2);
+}

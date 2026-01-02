@@ -35,8 +35,8 @@
    especially those whose name start with YY_ or yy_.  They are
    private implementation details that can be changed or removed.  */
 
-#ifndef YY_YY_PARSER_TAB_H_INCLUDED
-# define YY_YY_PARSER_TAB_H_INCLUDED
+#ifndef YY_YY_BUILD_PARSER_TAB_H_INCLUDED
+# define YY_YY_BUILD_PARSER_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -44,6 +44,12 @@
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 18 "src/parser/parser.y"
+
+    #include "../semantic/ast.h"
+
+#line 53 "build/parser.tab.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -68,21 +74,33 @@ extern int yydebug;
     T_REVERSE = 269,               /* T_REVERSE  */
     T_PALINDROME = 270,            /* T_PALINDROME  */
     T_COMPARE = 271,               /* T_COMPARE  */
-    T_ID = 272,                    /* T_ID  */
-    T_STRING_LIT = 273,            /* T_STRING_LIT  */
-    T_NUMBER = 274,                /* T_NUMBER  */
-    T_ASSIGN = 275,                /* T_ASSIGN  */
-    T_SEMICOLON = 276,             /* T_SEMICOLON  */
-    T_LPAREN = 277,                /* T_LPAREN  */
-    T_RPAREN = 278,                /* T_RPAREN  */
-    T_COMMA = 279                  /* T_COMMA  */
+    T_ASSIGN = 272,                /* T_ASSIGN  */
+    T_SEMICOLON = 273,             /* T_SEMICOLON  */
+    T_LPAREN = 274,                /* T_LPAREN  */
+    T_RPAREN = 275,                /* T_RPAREN  */
+    T_COMMA = 276,                 /* T_COMMA  */
+    T_ID = 277,                    /* T_ID  */
+    T_STRING_LIT = 278,            /* T_STRING_LIT  */
+    T_NUMBER = 279                 /* T_NUMBER  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+union YYSTYPE
+{
+#line 24 "src/parser/parser.y"
+
+    int ival;
+    char *str;
+    ASTNode *node;
+    DataType dtype;
+
+#line 101 "build/parser.tab.h"
+
+};
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
@@ -94,4 +112,4 @@ extern YYSTYPE yylval;
 int yyparse (void);
 
 
-#endif /* !YY_YY_PARSER_TAB_H_INCLUDED  */
+#endif /* !YY_YY_BUILD_PARSER_TAB_H_INCLUDED  */
