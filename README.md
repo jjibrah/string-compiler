@@ -50,41 +50,31 @@ gcc -Isrc/runtime output/output.c src/runtime/string_lib.c -o output/program
 ## Tests
 
 Added several test cases in `test/valid/` and `test/invalid/`.
-Use the provided test runner script to run all tests:
+
+Run the full test suite (build the compiler first if needed):
 
 ```bash
+# build compiler first (if not already built)
+make
+
+# preferred: ensure the test runner is executable then run
+chmod +x scripts/run_tests.sh
 ./scripts/run_tests.sh
-```
 
-- Valid tests should compile successfully and the generated program should run.
-- Invalid tests should fail in the compilation step (the compiler prints `Compilation failed.`).
-
-### Troubleshooting ⚠️
-
-If running `./scripts/run_tests.sh` prints `Permission denied`, the script is not executable. Quick fixes:
-
-- Run without changing permissions:
-
-```bash
+# or run without changing permissions:
 bash scripts/run_tests.sh
 ```
 
-- Make it executable and run:
+- Note: If you see `Permission denied` when running `./scripts/run_tests.sh`, either run it with `bash scripts/run_tests.sh` or add execute permission with `chmod +x scripts/run_tests.sh`.
+- To persist the executable bit in Git so others receive it too:
 
 ```bash
-chmod +x scripts/run_tests.sh
-./scripts/run_tests.sh
-```
-
-- To preserve the executable bit in Git for others:
-
-```bash
-# mark executable in the index and commit
 git update-index --chmod=+x scripts/run_tests.sh
 git commit -m "Make run_tests.sh executable"
 ```
 
-Note: The script already has a proper shebang (`#!/usr/bin/env bash`), so making it executable is the recommended fix.
+- Valid tests should compile successfully and the generated program should run.
+- Invalid tests should fail at compilation (the compiler prints errors such as `Syntax error` or `Semantic Error`).
 
 ## Files added
 - `test/valid/` (multiple non-empty .sp tests)
