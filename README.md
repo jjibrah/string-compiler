@@ -59,6 +59,33 @@ Use the provided test runner script to run all tests:
 - Valid tests should compile successfully and the generated program should run.
 - Invalid tests should fail in the compilation step (the compiler prints `Compilation failed.`).
 
+### Troubleshooting ⚠️
+
+If running `./scripts/run_tests.sh` prints `Permission denied`, the script is not executable. Quick fixes:
+
+- Run without changing permissions:
+
+```bash
+bash scripts/run_tests.sh
+```
+
+- Make it executable and run:
+
+```bash
+chmod +x scripts/run_tests.sh
+./scripts/run_tests.sh
+```
+
+- To preserve the executable bit in Git for others:
+
+```bash
+# mark executable in the index and commit
+git update-index --chmod=+x scripts/run_tests.sh
+git commit -m "Make run_tests.sh executable"
+```
+
+Note: The script already has a proper shebang (`#!/usr/bin/env bash`), so making it executable is the recommended fix.
+
 ## Files added
 - `test/valid/` (multiple non-empty .sp tests)
 - `test/invalid/` (several invalid .sp tests)
